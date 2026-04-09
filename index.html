@@ -1,97 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Global Student Portal - Dashboard Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Student Portal - Dashboard Pro</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
-  <div class="container">
-    <h2>Global Student Dashboard <span>🎓</span></h2>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>Global Student Dashboard <span>🎓</span></h2>
 
-    <div class="dashboard-top">
-      <div class="stats-container">
-        <div class="stat-card">
-          <div class="stat-info">
-            <h3 id="totalMhs">0</h3>
-            <p>Total Mahasiswa</p>
+      <div class="dashboard-top">
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3 id="totalMhs">0</h3>
+              <p>Total Mahasiswa</p>
+            </div>
+            <div class="stat-icon">👥</div>
           </div>
-          <div class="stat-icon">👥</div>
+          <div class="stat-card purple">
+            <div class="stat-info">
+              <h3 id="totalJurusan">0</h3>
+              <p>Program Studi</p>
+            </div>
+            <div class="stat-icon">📚</div>
+          </div>
         </div>
-        <div class="stat-card purple">
-          <div class="stat-info">
-            <h3 id="totalJurusan">0</h3>
-            <p>Program Studi</p>
+
+        <div class="glass-panel" style="margin-bottom: 0; padding: 15px">
+          <h4
+            style="
+              margin-top: 0;
+              margin-bottom: 10px;
+              color: #2d3436;
+              font-size: 14px;
+            "
+          >
+            Statistik Jurusan
+          </h4>
+          <div class="chart-container">
+            <canvas id="jurusanChart"></canvas>
           </div>
-          <div class="stat-icon">📚</div>
         </div>
       </div>
-      
-      <div class="glass-panel" style="margin-bottom: 0; padding: 15px;">
-        <h4 style="margin-top: 0; margin-bottom: 10px; color: #2d3436; font-size: 14px;">Statistik Jurusan</h4>
-        <div class="chart-container">
-          <canvas id="jurusanChart"></canvas>
+
+      <div class="main-grid">
+        <div class="glass-panel">
+          <h3 style="margin-top: 0; font-size: 16px">Form Data</h3>
+          <form id="form">
+            <input type="hidden" id="editIndex" />
+            <label>NAMA LENGKAP</label>
+            <input
+              placeholder="Contoh: John Doe"
+              type="text"
+              id="nama"
+              required
+            />
+
+            <label>NIM</label>
+            <input
+              placeholder="Nomor Induk Mahasiswa"
+              type="text"
+              id="nim"
+              required
+            />
+
+            <label>JURUSAN</label>
+            <select id="jurusan" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 15px; font-family: 'Poppins', sans-serif;">
+              <option value="" disabled selected>-- Pilih Jurusan --</option>
+              <option value="Teknik Informatika">Teknik Informatika</option>
+              <option value="Sistem Informasi">Sistem Informasi</option>
+              <option value="Kajian Film, Televisi & Komunikasi">Kajian Film, Televisi & Komunikasi</option>
+              <option value="Bisnis Digital">Bisnis Digital</option>
+              <option value="Manajemen Ritel">Manajemen Ritel</option>
+            </select>
+
+            <label>ALAMAT</label>
+            <input
+              placeholder="Alamat Domisili"
+              type="text"
+              id="alamat"
+              required
+            />
+
+            <button type="submit" class="btn btn-primary" id="btnSubmit">
+              Simpan Data
+            </button>
+          </form>
+        </div>
+
+        <div class="glass-panel">
+          <div class="controls-wrapper">
+            <button onclick="exportToExcel()" class="btn btn-excel">
+              📊 Export Excel
+            </button>
+            <div class="search-box">
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="🔍 Cari Nama atau NIM..."
+              />
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>NO</th>
+                  <th>MAHASISWA</th>
+                  <th>JURUSAN</th>
+                  <th>ALAMAT</th>
+                  <th>AKSI</th>
+                </tr>
+              </thead>
+              <tbody id="dataTable"></tbody>
+            </table>
+          </div>
         </div>
       </div>
+
+      <footer style="text-align: center; padding: 20px 0;">
+        <div style="margin-bottom: 15px; font-weight: 500;">&copy; 2026 Global Institute Developers Team</div>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; font-size: 14px; line-height: 1.5;">
+          <div>
+            <strong>Muhammad Fariz Azis</strong><br />
+            1125170032
+          </div>
+          <div>
+            <strong>Muhamad Zaidan Alfarizi</strong><br />
+            1125170023
+          </div>
+          <div>
+            <strong>Haikal Arrahman</strong><br />
+            1125170010
+          </div>
+        </div>
+      </footer>
     </div>
-
-    <div class="main-grid">
-      <div class="glass-panel">
-        <h3 style="margin-top: 0; font-size: 16px;">Form Data</h3>
-        <form id="form">
-          <input type="hidden" id="editIndex" />
-          <label>NAMA LENGKAP</label>
-          <input placeholder="Contoh: John Doe" type="text" id="nama" required />
-          
-          <label>NIM</label>
-          <input placeholder="Nomor Induk Mahasiswa" type="text" id="nim" required />
-          
-          <label>JURUSAN</label>
-          <input placeholder="Informatika, Sipil, dll" type="text" id="jurusan" required />
-          
-          <label>ALAMAT</label>
-          <input placeholder="Alamat Domisili" type="text" id="alamat" required />
-          
-          <button type="submit" class="btn btn-primary" id="btnSubmit">Simpan Data</button>
-        </form>
-      </div>
-
-      <div class="glass-panel">
-        <div class="controls-wrapper">
-          <button onclick="exportToExcel()" class="btn btn-excel">📊 Export Excel</button>
-          <div class="search-box">
-            <input type="text" id="searchInput" placeholder="🔍 Cari Nama atau NIM..." />
-          </div>
-        </div>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>NO</th>
-                <th>MAHASISWA</th>
-                <th>JURUSAN</th>
-                <th>ALAMAT</th>
-                <th>AKSI</th>
-              </tr>
-            </thead>
-            <tbody id="dataTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <footer>
-      &copy; 2024 Global Institute Developers Team
-    </footer>
-  </div>
-<script src="script.js"></script>
-</body>
+    
+    <script src="script.js"></script>
+  </body>
 </html>
