@@ -1,156 +1,148 @@
-const $ = id => document.getElementById(id);
-    let dataMahasiswa = JSON.parse(localStorage.getItem('mhs_data')) || [];
-    let chartInstance = null; // Menyimpan instance chart
+let dataMahasiswa = [];
+let jurusanChartInstance = null;
 
-    // Render Awal
-    window.onload = () => updateUI();
+const form = document.getElementById('form');
+const dataTable = document.getElementById('dataTable');
+const searchInput = document.getElementById('searchInput');
+const editIndexInput = document.getElementById('editIndex');
+const btnSubmit = document.getElementById('btnSubmit');
 
-    const updateUI = (filter = "") => {
-      renderTable(filter);
-      updateStatsAndChart();
-      localStorage.setItem('mhs_data', JSON.stringify(dataMahasiswa));
-    };
+function initChart() {
+  const ctx = document.getElementById('jurusanChart').getContext('2d');
+  jurusanChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        backgroundColor: ['#0984e3', '#6c5ce7', '#00b894', '#fdcb6e', '#e17055'],
+        borderWidth: 0
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+}
 
-    const updateStatsAndChart = () => {
-      // 1. Update Angka Statistik
-      $('totalMhs').innerText = dataMahasiswa.length;
-      
-      // Mengelompokkan data berdasarkan jurusan
-      const jurusanCount = {};
-      dataMahasiswa.forEach(m => {
-        const j = m.jurusan.toUpperCase();
-        jurusanCount[j] = (jurusanCount[j] || 0) + 1;
-      });
+function updateDashboard() {
+  const kataKunci = searchInput.value.toLowerCase();
+  
+  const filteredData = dataMahasiswa.filter(mhs => 
+    mhs.nama.toLowerCase().includes(kataKunci) || mhs.nim.includes(kataKunci)
+  );
 
-      const labelJurusan = Object.keys(jurusanCount);
-      const dataJurusan = Object.values(jurusanCount);
-      
-      $('totalJurusan').innerText = labelJurusan.length;
+  dataTable.innerHTML = '';
+  filteredData.forEach((mhs, index) => {
+    const realIndex = dataMahasiswa.indexOf(mhs); 
+    
+    // Logika Warna Badge Status
+    let statusClass = '';
+    if (mhs.status === 'Hadir') statusClass = 'badge-success';
+    else if (mhs.status === 'Telat Masuk') statusClass = 'badge-warning';
+    else if (mhs.status === 'Izin') statusClass = 'badge-info';
+    else if (mhs.status === 'Sakit') statusClass = 'badge-danger';
 
-      // 2. Render Chart.js
-      const ctx = $('jurusanChart').getContext('2d');
-      
-      // Hancurkan chart lama jika ada agar tidak tumpang tindih
-      if(chartInstance) {
-        chartInstance.destroy();
-      }
+    dataTable.innerHTML += `
+      <tr>
+        <td>${index + 1}</td>
+        <td style="font-weight: 500;">
+          ${mhs.nama}<br>
+          <small style="color: #636e72; font-weight: normal;">${mhs.alamat}</small>
+        </td>
+        <td>${mhs.nim}</td>
+        <td><span class="badge badge-primary">${mhs.jurusan}</span></td>
+        <td style="font-weight: 600;">${mhs.waktu}</td>
+        <td><span class="badge ${statusClass}">${mhs.status}</span></td>
+        <td>
+          <button class="btn btn-edit" onclick="editData(${realIndex})">✏️</button>
+          <button class="btn btn-delete" onclick="hapusData(${realIndex})">🗑️</button>
+        </td>
+      </tr>
+    `;
+  });
 
-      chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labelJurusan,
-          datasets: [{
-            label: 'Jumlah Mahasiswa',
-            data: dataJurusan,
-            backgroundColor: 'rgba(102, 126, 234, 0.7)',
-            borderColor: 'rgba(102, 126, 234, 1)',
-            borderWidth: 1,
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1 } }
-          }
-        }
-      });
-    };
+  document.getElementById('totalMhs').innerText = dataMahasiswa.length;
+  const jurusanUnik = [...new Set(dataMahasiswa.map(mhs => mhs.jurusan))];
+  document.getElementById('totalJurusan').innerText = jurusanUnik.length;
 
-    const renderTable = (filterText = "") => {
-      const filtered = dataMahasiswa.filter(m => 
-        m.nama.toLowerCase().includes(filterText.toLowerCase()) || 
-        m.nim.includes(filterText)
-      );
+  const hitungJurusan = {};
+  dataMahasiswa.forEach(mhs => {
+    hitungJurusan[mhs.jurusan] = (hitungJurusan[mhs.jurusan] || 0) + 1;
+  });
+  
+  jurusanChartInstance.data.labels = Object.keys(hitungJurusan);
+  jurusanChartInstance.data.datasets[0].data = Object.values(hitungJurusan);
+  jurusanChartInstance.update();
+}
 
-      if (filtered.length === 0) {
-        $('dataTable').innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999;">Tidak ada data ditemukan</td></tr>`;
-        return;
-      }
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
 
-      $('dataTable').innerHTML = filtered.map((m, i) => {
-        const realIdx = dataMahasiswa.indexOf(m);
-        return `
-        <tr class="fade-in-row">
-          <td>${realIdx + 1}</td>
-          <td>
-            <div style="font-weight: 600;">${m.nama}</div>
-            <div style="font-size: 11px; color: #636e72;">NIM: ${m.nim}</div>
-          </td>
-          <td><span class="badge-jurusan">${m.jurusan.toUpperCase()}</span></td>
-          <td style="color: #636e72;">${m.alamat}</td>
-          <td class="action-btns">
-            <button class="btn btn-sm edit" onclick="editData(${realIdx})">Edit</button>
-            <button class="btn btn-sm delete" onclick="deleteData(${realIdx})">Hapus</button>
-          </td>
-        </tr>`;
-      }).join('');
-    };
+  const nama = document.getElementById('nama').value;
+  const nim = document.getElementById('nim').value;
+  const jurusan = document.getElementById('jurusan').value;
+  const waktu = document.getElementById('waktu').value;
+  const status = document.getElementById('status').value;
+  const alamat = document.getElementById('alamat').value;
+  const editIndex = parseInt(editIndexInput.value);
 
-    // Export ke Excel
-    function exportToExcel() {
-      if(dataMahasiswa.length === 0) return Swal.fire('Ops!', 'Data masih kosong', 'warning');
-      const ws = XLSX.utils.json_to_sheet(dataMahasiswa);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Mahasiswa");
-      XLSX.writeFile(wb, "Data_Mahasiswa_Global.xlsx");
+  if (editIndex === -1) {
+    dataMahasiswa.push({ nama, nim, jurusan, waktu, status, alamat });
+    Swal.fire({
+      title: 'Berhasil!', text: 'Data mahasiswa berhasil ditambahkan.', icon: 'success', confirmButtonColor: '#0984e3'
+    });
+  } else {
+    dataMahasiswa[editIndex] = { nama, nim, jurusan, waktu, status, alamat };
+    editIndexInput.value = '-1';
+    btnSubmit.innerText = 'Simpan Data';
+    Swal.fire({
+      title: 'Diperbarui!', text: 'Data mahasiswa berhasil diubah.', icon: 'success', confirmButtonColor: '#0984e3'
+    });
+  }
+
+  form.reset();
+  // Kembalikan waktu ke default 08:00 setelah reset
+  document.getElementById('waktu').value = '08:00'; 
+  updateDashboard();
+});
+
+window.editData = (index) => {
+  const mhs = dataMahasiswa[index];
+  document.getElementById('nama').value = mhs.nama;
+  document.getElementById('nim').value = mhs.nim;
+  document.getElementById('jurusan').value = mhs.jurusan;
+  document.getElementById('waktu').value = mhs.waktu;
+  document.getElementById('status').value = mhs.status;
+  document.getElementById('alamat').value = mhs.alamat;
+  
+  editIndexInput.value = index;
+  btnSubmit.innerText = 'Update Data';
+};
+
+window.hapusData = (index) => {
+  Swal.fire({
+    title: 'Yakin Hapus Data?', text: "Data yang dihapus tidak bisa dikembalikan!", icon: 'warning',
+    showCancelButton: true, confirmButtonColor: '#d63031', cancelButtonColor: '#636e72', confirmButtonText: 'Ya, Hapus!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      dataMahasiswa.splice(index, 1);
+      updateDashboard();
+      Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
     }
+  });
+};
 
-    $('form').onsubmit = e => {
-      e.preventDefault();
-      const mhs = {
-        nama: $('nama').value,
-        nim: $('nim').value,
-        jurusan: $('jurusan').value,
-        alamat: $('alamat').value
-      };
-      const index = $('editIndex').value;
+searchInput.addEventListener('input', updateDashboard);
 
-      if (index === "") {
-        dataMahasiswa.push(mhs);
-        Swal.fire({ title: 'Berhasil!', text: 'Data mahasiswa ditambahkan', icon: 'success', timer: 1500, showConfirmButton: false });
-      } else {
-        dataMahasiswa[index] = mhs;
-        $('editIndex').value = "";
-        $('btnSubmit').innerText = "Simpan Data";
-        Swal.fire({ title: 'Terupdate!', text: 'Data berhasil diperbarui', icon: 'success', timer: 1500, showConfirmButton: false });
-      }
+window.exportToExcel = () => {
+  if(dataMahasiswa.length === 0) {
+    Swal.fire('Kosong!', 'Belum ada data untuk diexport.', 'info');
+    return;
+  }
+  const worksheet = XLSX.utils.json_to_sheet(dataMahasiswa);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Data Kehadiran");
+  XLSX.writeFile(workbook, "Data_Kehadiran_Mahasiswa.xlsx");
+};
 
-      $('form').reset();
-      updateUI($('searchInput').value);
-    };
-
-    const editData = i => {
-      const m = dataMahasiswa[i];
-      $('nama').value = m.nama;
-      $('nim').value = m.nim;
-      $('jurusan').value = m.jurusan;
-      $('alamat').value = m.alamat;
-      $('editIndex').value = i;
-      $('btnSubmit').innerText = "Update Data Mahasiswa";
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const deleteData = i => {
-      Swal.fire({
-        title: 'Apakah anda yakin?',
-        text: "Data yang dihapus tidak bisa dikembalikan!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ff7675',
-        cancelButtonColor: '#636e72',
-        confirmButtonText: 'Ya, Hapus!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          dataMahasiswa.splice(i, 1);
-          updateUI($('searchInput').value);
-          Swal.fire({ title: 'Terhapus!', text: 'Data telah dihapus.', icon: 'success', timer: 1500, showConfirmButton: false });
-        }
-      });
-    };
-
-    $('searchInput').oninput = (e) => renderTable(e.target.value);
+initChart();
+updateDashboard();

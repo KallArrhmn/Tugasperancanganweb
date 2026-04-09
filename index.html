@@ -3,20 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Absen Global Institute</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-
+    <title>Global Student Portal - Dashboard Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
-      <h2>Data Absen Global Institute <span>🎓</span></h2>
+      <h2>Global Student Dashboard <span>🎓</span></h2>
 
       <div class="dashboard-top">
         <div class="stats-container">
@@ -37,16 +35,7 @@
         </div>
 
         <div class="glass-panel" style="margin-bottom: 0; padding: 15px">
-          <h4
-            style="
-              margin-top: 0;
-              margin-bottom: 10px;
-              color: #2d3436;
-              font-size: 14px;
-            "
-          >
-            Statistik Jurusan
-          </h4>
+          <h4 style="margin-top: 0; margin-bottom: 10px; color: #2d3436; font-size: 14px;">Statistik Jurusan</h4>
           <div class="chart-container">
             <canvas id="jurusanChart"></canvas>
           </div>
@@ -57,26 +46,16 @@
         <div class="glass-panel">
           <h3 style="margin-top: 0; font-size: 16px">Form Data</h3>
           <form id="form">
-            <input type="hidden" id="editIndex" />
+            <input type="hidden" id="editIndex" value="-1" />
+            
             <label>NAMA LENGKAP</label>
-            <input
-              placeholder="Contoh: John Doe"
-              type="text"
-              id="nama"
-              required
-            />
+            <input placeholder="Contoh: John Doe" type="text" id="nama" required />
 
             <label>NIM</label>
-            <input
-              placeholder="Nomor Induk Mahasiswa"
-              type="text"
-              id="nim"
-              required
-              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-            />
+            <input placeholder="Nomor Induk Mahasiswa" type="text" id="nim" required oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
 
             <label>JURUSAN</label>
-            <select id="jurusan" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 15px; font-family: 'Poppins', sans-serif;">
+            <select id="jurusan" required>
               <option value="" disabled selected>-- Pilih Jurusan --</option>
               <option value="Teknik Informatika">Teknik Informatika</option>
               <option value="Sistem Informasi">Sistem Informasi</option>
@@ -85,13 +64,25 @@
               <option value="Manajemen Ritel">Manajemen Ritel</option>
             </select>
 
+            <div style="display: flex; gap: 10px;">
+              <div style="flex: 1;">
+                <label>WAKTU MASUK (WIB)</label>
+                <input type="time" id="waktu" value="08:00" required />
+              </div>
+              <div style="flex: 1;">
+                <label>STATUS</label>
+                <select id="status" required>
+                  <option value="" disabled selected>-- Pilih --</option>
+                  <option value="Hadir">Hadir</option>
+                  <option value="Telat Masuk">Telat Masuk</option>
+                  <option value="Izin">Izin</option>
+                  <option value="Sakit">Sakit</option>
+                </select>
+              </div>
+            </div>
+
             <label>ALAMAT</label>
-            <input
-              placeholder="Alamat Domisili"
-              type="text"
-              id="alamat"
-              required
-            />
+            <input placeholder="Alamat Domisili" type="text" id="alamat" required />
 
             <button type="submit" class="btn btn-primary" id="btnSubmit">
               Simpan Data
@@ -101,15 +92,11 @@
 
         <div class="glass-panel">
           <div class="controls-wrapper">
-            <button onclick="exportToExcel()" class="btn btn-excel">
+            <button onclick="exportToExcel()" class="btn btn-excel" type="button">
               📊 Export Excel
             </button>
             <div class="search-box">
-              <input
-                type="text"
-                id="searchInput"
-                placeholder="🔍 Cari Nama atau NIM..."
-              />
+              <input type="text" id="searchInput" placeholder="🔍 Cari Nama atau NIM..." />
             </div>
           </div>
 
@@ -119,32 +106,26 @@
                 <tr>
                   <th>NO</th>
                   <th>MAHASISWA</th>
+                  <th>NIM</th>
                   <th>JURUSAN</th>
-                  <th>ALAMAT</th>
+                  <th>WAKTU</th>
+                  <th>STATUS</th>
                   <th>AKSI</th>
                 </tr>
               </thead>
-              <tbody id="dataTable"></tbody>
+              <tbody id="dataTable">
+                </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <footer style="text-align: center; padding: 20px 0;">
-        <div style="margin-bottom: 15px; font-weight: 500;">&copy; 2026 Global Institute Developers Team</div>
-        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; font-size: 14px; line-height: 1.5;">
-          <div>
-            <strong>Muhammad Fariz Azis</strong><br />
-            1125170032
-          </div>
-          <div>
-            <strong>Muhamad Zaidan Alfarizi</strong><br />
-            1125170023
-          </div>
-          <div>
-            <strong>Haikal Arrahman</strong><br />
-            1125170010
-          </div>
+      <footer style="text-align: center; padding: 20px 0; margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);">
+        <div style="margin-bottom: 15px; font-weight: 600; color: #2d3436;">&copy; 2026 Global Institute Developers Team</div>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; font-size: 14px; line-height: 1.5; color: #636e72;">
+          <div><strong>Muhammad Fariz Azis</strong><br />1125170032</div>
+          <div><strong>Muhamad Zaidan Alfarizi</strong><br />1125170023</div>
+          <div><strong>Haikal Arrahman</strong><br />1125170010</div>
         </div>
       </footer>
     </div>
