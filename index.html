@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRUD Data Mahasiswa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    /* CSS DIRINGKAS MENGGUNAKAN SHORTHAND & PENGELOMPOKKAN */
+    * { box-sizing: border-box; font-family: "Poppins", sans-serif; }
+    body {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      background-size: 200% 200%;
+      animation: gradientMove 10s ease infinite;
+      min-height: 100vh; margin: 0; padding: 20px;
+      display: flex; flex-direction: column;
+    }
+    h2 { text-align: center; color: #fff; text-shadow: 2px 2px 3px rgba(0,0,0,0.3); margin-bottom: 20px; }
+    
+    form, .table-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      margin: 0 auto 30px; width: 100%;
+    }
+    form { max-width: 450px; padding: 25px; }
+    .table-container { max-width: 1000px; overflow-x: auto; }
+    
+    label { font-weight: 500; font-size: 14px; color: #555; }
+    label::after { content: " *"; color: #e74c3c; font-weight: bold; }
+    
+    input { width: 100%; padding: 12px; margin: 5px 0 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; transition: 0.3s; }
+    input:focus { border-color: #4facfe; background: #fff; box-shadow: 0 0 0 3px rgba(79,172,254,0.2); outline: none; }
+    
+    button { font-family: "Poppins", sans-serif; cursor: pointer; border: none; border-radius: 8px; transition: 0.2s; }
+    button[type="submit"] { width: 100%; padding: 12px; background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; font-weight: 600; font-size: 15px; }
+    button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(79,172,254,0.4); }
+    
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; color: #555; }
+    th { background: #2c3e50; color: white; white-space: nowrap; }
+    th:first-child, td:first-child, th:last-child, td:last-child { text-align: center; }
+    
+    tr { animation: slideIn 0.4s ease-out forwards; transition: 0.2s; }
+    tr:hover { background: #f8faff; transform: scale(1.01); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+    
+    .edit, .delete { padding: 8px 12px; color: white; font-size: 13px; margin: 2px; }
+    .edit { background: #f39c12; } .edit:hover { background: #d68910; }
+    .delete { background: #e74c3c; } .delete:hover { background: #c0392b; }
+    
+    .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(3px); }
+    .spinner { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.3); border-top: 6px solid #4facfe; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+    .loading-text { color: white; font-size: 18px; font-weight: 500; }
+    
+    footer { text-align: center; color: white; margin-top: auto; padding: 20px 0; }
+    .creator-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+    .creator h3 { font-size: 14px; margin: 0; }
+    .creator h4 { font-size: 12px; margin: 2px 0 0; opacity: 0.8; font-weight: 400; }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes gradientMove { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  </style>
+</head>
+<body>
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Memuat Website...</div>
+  </div>
+
+  <h2>DATA MAHASISWA GLOBAL INSTITUTE</h2>
+
+  <form id="form">
+    <input type="hidden" id="editIndex" />
+    
+    <label>Nama Lengkap</label>
+    <input placeholder="Masukkan Nama Lengkap" type="text" id="nama" required />
+    
+    <label>NIM</label>
+    <input placeholder="Masukkan Nim" type="text" id="nim" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g, '')" required />
+    
+    <label>Jurusan</label>
+    <input placeholder="Masukkan Jurusan" type="text" id="jurusan" required />
+    
+    <label>Alamat</label>
+    <input placeholder="Masukkan Alamat" type="text" id="alamat" required />
+    
+    <button type="submit">Simpan</button>
+  </form>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr><th>No</th><th>Nama</th><th>NIM</th><th>Jurusan</th><th>Alamat</th><th>Aksi</th></tr>
+      </thead>
+      <tbody id="dataTable"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <div style="font-size: 14px; opacity: 0.9;">&copy; Created by</div>
+    <div class="creator-container">
+      <div class="creator"><h3>M. Azmi Fariz Aziz</h3><h4>112517032</h4></div>
+      <div class="creator"><h3>M. Zaidan Alfarizi</h3><h4>11251234</h4></div>
+      <div class="creator"><h3>Haikal Arrahman</h3><h4>1125170010</h4></div>
+    </div>
+  </footer>
+
+  <script>
+    // JS DIRINGKAS MENGGUNAKAN ARROW FUNCTION & DOM UTILITY
+    const $ = id => document.getElementById(id);
+    const loading = $('loadingOverlay'), loadingText = $('loadingText'), form = $('form'), table = $('dataTable');
+    let dataMahasiswa = [];
+
+    // Loading Awal
+    window.onload = () => setTimeout(() => { 
+      loading.style.display = 'none'; 
+      loadingText.innerText = "Menyimpan Data..."; 
+    }, 1500);
+
+    // Render Tabel
+    const renderTable = () => {
+      table.innerHTML = dataMahasiswa.map((m, i) => `
+        <tr>
+          <td>${i + 1}</td><td>${m.nama}</td><td>${m.nim}</td><td>${m.jurusan}</td><td>${m.alamat}</td>
+          <td>
+            <button class="edit" onclick="editData(${i})">Edit</button>
+            <button class="delete" onclick="deleteData(${i})">Delete</button>
+          </td>
+        </tr>`).join('');
+    };
+
+    // Submit Form (Simpan / Update)
+    form.onsubmit = e => {
+      e.preventDefault();
+      loading.style.display = "flex";
+      
+      const v = id => $(id).value;
+      const mhs = { nama: v('nama'), nim: v('nim'), jurusan: v('jurusan'), alamat: v('alamat') };
+      const index = v('editIndex');
+
+      setTimeout(() => {
+        index === "" ? dataMahasiswa.push(mhs) : dataMahasiswa[index] = mhs;
+        $('editIndex').value = "";
+        form.reset();
+        renderTable();
+        loading.style.display = "none";
+      }, 1000);
+    };
+
+    // Edit Data
+    const editData = i => {
+      ['nama', 'nim', 'jurusan', 'alamat'].forEach(key => $(key).value = dataMahasiswa[i][key]);
+      $('editIndex').value = i;
+    };
+
+    // Hapus Data
+    const deleteData = i => {
+      if (confirm("Yakin ingin menghapus data?")) {
+        dataMahasiswa.splice(i, 1);
+        renderTable();
+      }
+    };
+  </script>
+</body>
+</html>
