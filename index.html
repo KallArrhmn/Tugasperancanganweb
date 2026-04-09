@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Global Student Portal - Dashboard Pro</title>
+    <title>Data Absen Global Institute</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
       rel="stylesheet"
@@ -16,7 +16,7 @@
   </head>
   <body>
     <div class="container">
-      <h2>Global Student Dashboard <span>🎓</span></h2>
+      <h2>Data Absen Global Institute <span>🎓</span></h2>
 
       <div class="dashboard-top">
         <div class="stats-container">
@@ -72,6 +72,7 @@
               type="text"
               id="nim"
               required
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
             />
 
             <label>JURUSAN</label>
