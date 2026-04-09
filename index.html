@@ -14,14 +14,20 @@
   </head>
   <body>
     <div class="container">
-      <h2>Global Student Dashboard <span>🎓</span></h2>
+      
+      <div class="header-wrapper">
+        <h2>Global Student Dashboard <span>🎓</span></h2>
+        <div class="realtime-clock" id="realtimeClock">
+          Memuat Waktu...
+        </div>
+      </div>
 
       <div class="dashboard-top">
         <div class="stats-container">
           <div class="stat-card">
             <div class="stat-info">
               <h3 id="totalMhs">0</h3>
-              <p>Total Mahasiswa</p>
+              <p>Total Kehadiran</p>
             </div>
             <div class="stat-icon">👥</div>
           </div>
@@ -44,7 +50,7 @@
 
       <div class="main-grid">
         <div class="glass-panel">
-          <h3 style="margin-top: 0; font-size: 16px">Form Data</h3>
+          <h3 style="margin-top: 0; font-size: 16px">Form Presensi</h3>
           <form id="form">
             <input type="hidden" id="editIndex" value="-1" />
             
@@ -120,7 +126,61 @@
         </div>
       </div>
 
-      <footer style="text-align: center; padding: 20px 0; margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);">
+      <div class="glass-panel schedule-panel">
+        <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 15px;">📅 Jadwal Mata Kuliah (Semester Ganjil)</h3>
+        <div class="table-wrapper">
+          <table class="schedule-table">
+            <thead>
+              <tr>
+                <th>HARI</th>
+                <th>WAKTU</th>
+                <th>MATA KULIAH</th>
+                <th>RUANGAN</th>
+                <th>DOSEN PENGAMPU</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-day">Senin</span></td>
+                <td>08:00 - 10:30</td>
+                <td style="font-weight: 500;">Algoritma & Pemrograman</td>
+                <td>Lab Komputer A</td>
+                <td>Dr. Sandika Galih, M.Kom.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-day">Selasa</span></td>
+                <td>10:00 - 12:30</td>
+                <td style="font-weight: 500;">Basis Data</td>
+                <td>Ruang 301</td>
+                <td>Budi Santoso, S.Kom., M.T.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-day">Rabu</span></td>
+                <td>08:00 - 11:00</td>
+                <td style="font-weight: 500;">UI/UX Design</td>
+                <td>Lab Desain B</td>
+                <td>Rina Melati, M.Ds.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-day">Kamis</span></td>
+                <td>13:00 - 15:30</td>
+                <td style="font-weight: 500;">Pengembangan Aplikasi Web</td>
+                <td>Lab Komputer A</td>
+                <td>Ahmad Fauzi, M.Kom.</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-day">Jumat</span></td>
+                <td>08:00 - 10:00</td>
+                <td style="font-weight: 500;">Sistem Operasi</td>
+                <td>Ruang 402</td>
+                <td>Prof. Dr. Hendra Surya</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <footer style="text-align: center; padding: 20px 0; border-top: 1px solid rgba(0,0,0,0.1);">
         <div style="margin-bottom: 15px; font-weight: 600; color: #2d3436;">&copy; 2026 Global Institute Developers Team</div>
         <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; font-size: 14px; line-height: 1.5; color: #636e72;">
           <div><strong>Muhammad Fariz Azis</strong><br />1125170032</div>

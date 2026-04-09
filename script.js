@@ -7,6 +7,23 @@ const searchInput = document.getElementById('searchInput');
 const editIndexInput = document.getElementById('editIndex');
 const btnSubmit = document.getElementById('btnSubmit');
 
+// Fungsi Waktu Real-time
+function updateClock() {
+  const now = new Date();
+  
+  // Format Tanggal (Contoh: Senin, 10 Oktober 2024)
+  const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateString = now.toLocaleDateString('id-ID', optionsDate);
+  
+  // Format Jam (Contoh: 14:05:30)
+  const timeString = now.toLocaleTimeString('id-ID');
+  
+  document.getElementById('realtimeClock').innerHTML = `📅 ${dateString} &nbsp;|&nbsp; 🕒 <b>${timeString} WIB</b>`;
+}
+// Jalankan jam setiap detik
+setInterval(updateClock, 1000);
+updateClock(); // Panggil sekali di awal agar tidak delay 1 detik
+
 function initChart() {
   const ctx = document.getElementById('jurusanChart').getContext('2d');
   jurusanChartInstance = new Chart(ctx, {
@@ -88,19 +105,18 @@ form.addEventListener('submit', function(e) {
   if (editIndex === -1) {
     dataMahasiswa.push({ nama, nim, jurusan, waktu, status, alamat });
     Swal.fire({
-      title: 'Berhasil!', text: 'Data mahasiswa berhasil ditambahkan.', icon: 'success', confirmButtonColor: '#0984e3'
+      title: 'Berhasil!', text: 'Data presensi berhasil ditambahkan.', icon: 'success', confirmButtonColor: '#0984e3'
     });
   } else {
     dataMahasiswa[editIndex] = { nama, nim, jurusan, waktu, status, alamat };
     editIndexInput.value = '-1';
     btnSubmit.innerText = 'Simpan Data';
     Swal.fire({
-      title: 'Diperbarui!', text: 'Data mahasiswa berhasil diubah.', icon: 'success', confirmButtonColor: '#0984e3'
+      title: 'Diperbarui!', text: 'Data presensi berhasil diubah.', icon: 'success', confirmButtonColor: '#0984e3'
     });
   }
 
   form.reset();
-  // Kembalikan waktu ke default 08:00 setelah reset
   document.getElementById('waktu').value = '08:00'; 
   updateDashboard();
 });

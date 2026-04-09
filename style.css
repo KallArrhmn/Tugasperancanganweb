@@ -16,10 +16,28 @@ body {
   margin: 0 auto;
 }
 
-h2 {
-  text-align: center;
-  color: #2d3436;
+/* Header & Jam Realtime */
+.header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.header-wrapper h2 {
+  margin: 0;
+  color: #2d3436;
+}
+
+.realtime-clock {
+  background: #2d3436;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 /* Glass Panel */
@@ -154,6 +172,16 @@ th {
   font-weight: 600;
 }
 
+/* Schedule Panel */
+.schedule-panel {
+  margin-top: 20px;
+}
+
+.schedule-table th {
+  background: #eef2f3;
+  color: #2d3436;
+}
+
 /* Status Badges */
 .badge {
   padding: 5px 10px;
@@ -163,14 +191,16 @@ th {
   display: inline-block;
 }
 
-.badge-primary { background: #e1f5fe; color: #0288d1; } /* Jurusan */
-.badge-success { background: #e8f8f5; color: #27ae60; } /* Hadir */
-.badge-warning { background: #fef9e7; color: #d35400; } /* Telat Masuk */
-.badge-info    { background: #ebf5fb; color: #2980b9; } /* Izin */
-.badge-danger  { background: #fdedec; color: #c0392b; } /* Sakit */
+.badge-primary { background: #e1f5fe; color: #0288d1; } 
+.badge-success { background: #e8f8f5; color: #27ae60; } 
+.badge-warning { background: #fef9e7; color: #d35400; } 
+.badge-info    { background: #ebf5fb; color: #2980b9; } 
+.badge-danger  { background: #fdedec; color: #c0392b; } 
+.badge-day     { background: #2d3436; color: #fff; border-radius: 5px; } /* Hari */
 
 /* Responsif (HP) */
 @media (max-width: 768px) {
+  .header-wrapper { justify-content: center; text-align: center; }
   .dashboard-top, .main-grid {
     grid-template-columns: 1fr;
   }
